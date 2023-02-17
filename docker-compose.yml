@@ -1,0 +1,55 @@
+version: '3'
+
+volumes:
+    postgres_data: {}
+    static_volume: {}
+    redis_data: {}
+
+
+networks:
+  nginx_network:
+    driver: bridge
+
+
+services:
+  web1:
+    container_name: web1
+    restart: always
+    build:
+      context: ./app/
+      args:
+        port: 8000
+    expose:
+      - 8000
+    ports:
+      - "8000:8000"
+    networks:
+      - nginx_network
+  
+  # web2:
+  #   container_name: web1
+  #   restart: always
+  #   build:
+  #     context: ./app/
+  #     args:
+  #       port: 8000
+  #   expose:
+  #     - 8000
+  #   ports:
+  #     - "8000:8000"
+  #   networks:
+  #     - nginx_network
+
+
+  nginx:
+    build: ./nginx
+    ports:
+      - 80:80
+    # links:
+    #   - "web:web"
+    volumes:
+      - static_volume:/usr/src/app/static/
+    networks:
+      - nginx_network
+    depends_on:
+      - web1
